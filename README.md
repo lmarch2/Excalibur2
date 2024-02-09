@@ -15,6 +15,10 @@ Install Excalibur2 by
 
 > pip3 install Excalibur2
 
+check for updates
+
+> python3 -m Excalibur2.\_\_update\_\_
+
 update package
 
 > pip3 install Excalibur2 --upgrade
@@ -50,5 +54,4 @@ Support custom debugging terminal and add check update function
 ### 2.0,  Feb 8, 2024
 
 The birthday of the package
-
 
