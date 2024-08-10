@@ -1,3 +1,4 @@
+
 """
 This module provides functionality for ctf pwn.
 Including some common operations in learning and competitions
@@ -10,11 +11,11 @@ Excalibur -- Sword of Contract Victory
 --------------------------------------
 
 Example:
-    >>> from Excalibur2 import*
+   >>> from Excalibur2 import*
 """
 
 
-# Module code goes here
+# Excalibur
 
 
 #-----------------------------------------------------------------------------------------
@@ -34,6 +35,18 @@ from LibcSearcher import *
 #-----------------------------------------------------------------------------------------
 # Settings
 #-----------------------------------------------------------------------------------------
+
+elfbase = 0
+libcbase = 0
+
+
+def default(mode):
+	if mode == 'm':
+		setterminal("tmux","new-window")
+		setcontext()
+	elif mode == 'h':
+		setterminal("tmux","splitw","-h")
+		setcontext()
 
 
 # Set up debugging terminal (especially efficient on WSL2)
@@ -57,9 +70,9 @@ def setterminal(termin='tmux',*args):
 	if(len(args)<=0):
 		context.terminal = [termin, 'splitw', '-h']
 	else:
-		context.terminal = [termin,args]
+		context.terminal = [termin,*args]
 
-def contextset(ar = 64, de = 1):
+def setcontext(ar = 64, de = 1):
 	'''
 	------
 	Descriptions
@@ -85,11 +98,6 @@ def contextset(ar = 64, de = 1):
 			context(os='linux', arch='amd64')
 		else:
 			context(os='linux', arch='amd64', log_level='debug')
-
-#-----------------------------------------------------------------------------------------
-# Functions
-#-----------------------------------------------------------------------------------------
-
 
 def debug(c = 0):
 	'''
@@ -148,6 +156,11 @@ def prl(addr) :
 	'''print length of data abbreviation
 	打印数据长度'''
 	print(len(addr))
+
+def prhl(addr) : 
+	'''print length of data abbreviation
+	打印数据长度'''
+	print(hex(len(addr)))
 	
 def lib(arg = '/usr/lib/x86_64-linux-gnu/libc.so.6') : 
 	'''
@@ -183,7 +196,7 @@ def el(arg='pwn') :
 	'''
 	global elf
 	elf = ELF(arg)
-def proc(bin) :
+def proc(bin="./pwn") :
 	'''
 	------
 	Descriptions
@@ -226,7 +239,7 @@ def remo(ip,port='') :
 		if ' ' in ip :
 			ip_port = ip.split(' ')
 			p = remote(ip_port[0],ip_port[1])
-		if not ':' in ip :
+		elif not ':' in ip :
 			p = remote(ip,port)
 		else:
 			ip_port = ip.split(':')
@@ -249,7 +262,7 @@ def get_addr64() :
 	recieved addr
 	'''
 	recvaddr = u64(p.recvuntil(b'\x7f')[-6:].ljust(8, b'\x00'))
-	print("\n >>>>  The  addr is ",hex(recvaddr),'\n')
+	print("\n>>>>  The  leaked addr is ",hex(recvaddr),'\n')
 	return recvaddr
 
 def get_addr32() : 
@@ -268,7 +281,7 @@ def get_addr32() :
 	recieved addr
 	'''
 	recvaddr = u32(p.recvuntil(b'\xf7')[-4:])
-	print("\n >>>>  The  addr is ",hex(recvaddr),'\n')
+	print("\n>>>>  The  leaked addr is ",hex(recvaddr),'\n')
 	return recvaddr
 	
 def sym(fun,*pie_base) :
@@ -287,15 +300,18 @@ def sym(fun,*pie_base) :
 	Returns
 	addr of func
 	'''
+	global elfbase
+	if elfbase != 0:
+		pie_base = elfbase
 	if(len(pie_base)<=0):
 		addr = elf.sym[fun]
-		print("\n >>>>  The ",fun," offset is ",hex(addr),'\n')	
+		print("\n>>>>  The ",fun," offset is ",hex(addr),'\n')	
 		return addr
 	else :
 		addr = elf.sym[fun]+pie_base
-		print("\n >>>>  pie_base ",pie_base,'\n')
-		print("\n >>>>  The ",fun," offset is ",hex(elf.sym[fun])," (without base)",'\n')		
-		print("\n >>>>  The ",fun," offset is ",hex(addr)," (with base)",'\n')
+		print("\n>>>>  pie_base ",pie_base,'\n')
+		print("\n>>>>  The ",fun," offset is ",hex(elf.sym[fun])," (without base)",'\n')		
+		print("\n>>>>  The ",fun," offset is ",hex(addr)," (with base)",'\n')
 		return addr
 		
 def got(fun,*pie_base) :
@@ -314,15 +330,18 @@ def got(fun,*pie_base) :
 	Returns
 	got addr of func
 	'''
+	global elfbase
+	if elfbase != 0:
+		pie_base = elfbase
 	if(len(pie_base)<=0):
 		addr = elf.got[fun]
-		print("\n >>>>  The ",fun," got is ",hex(addr),'\n')
+		print("\n>>>>  The ",fun," got is ",hex(addr),'\n')
 		return addr
 	else :
 		addr = elf.got[fun]+pie_base
-		print("\n >>>>  pie_base ",pie_base,'\n')
-		print("\n >>>>  The ",fun," offset is ",hex(elf.got[fun])," (without base)",'\n')		
-		print("\n >>>>  The ",fun," got is ",hex(addr)," (with base)",'\n')
+		print("\n>>>>  pie_base ",pie_base,'\n')
+		print("\n>>>>  The ",fun," offset is ",hex(elf.got[fun])," (without base)",'\n')		
+		print("\n>>>>  The ",fun," got is ",hex(addr)," (with base)",'\n')
 		return addr
 			
 def plt(fun,*pie_base) :
@@ -341,15 +360,18 @@ def plt(fun,*pie_base) :
 	Returns
 	plt addr of func
 	'''
+	global elfbase
+	if elfbase != 0:
+		pie_base = elfbase
 	if(len(pie_base)<=0):	
 		addr = elf.plt[fun]
-		print("\n >>>>  The ",fun," plt is ",hex(addr),'\n')
+		print("\n>>>>  The ",fun," plt is ",hex(addr),'\n')
 		return addr
 	else :
 		addr = elf.plt[fun]+pie_base
-		print("\n >>>>  pie_base ",pie_base,'\n')
-		print("\n >>>>  The ",fun," offset is ",hex(elf.plt[fun])," (without base)",'\n')		
-		print("\n >>>>  The ",fun," plt is ",hex(addr)," (with base)",'\n')
+		print("\n>>>>  pie_base ",pie_base,'\n')
+		print("\n>>>>  The ",fun," offset is ",hex(elf.plt[fun])," (without base)",'\n')		
+		print("\n>>>>  The ",fun," plt is ",hex(addr)," (with base)",'\n')
 		return addr
 	
 def libcsym(fun,off=0):
@@ -369,14 +391,17 @@ def libcsym(fun,off=0):
 	Returns
 	addr of libc func
 	'''
+	global libcbase
+	if libcbase != 0:
+		off = libcbase
 	if(off==0):
 		addr = libc.sym[fun]
-		print("\n >>>>  The ",fun," offset is ",hex(addr),'\n')
+		print("\n>>>>  The ",fun," offset is ",hex(addr),'\n')
 		return addr
 	else:
 		addr = libc.sym[fun]+off
-		print("\n >>>>  The ",fun," offset is ",hex(libc.sym[fun]),' (without base)\n')
-		print("\n >>>>  The ",fun," offset is ",hex(addr),' (with base)\n')
+		print("\n>>>>  The ",fun," offset is ",hex(libc.sym[fun]),' (without base)\n')
+		print("\n>>>>  The ",fun," offset is ",hex(addr),' (with base)\n')
 		return addr
 	
 def setbase(add):
@@ -396,7 +421,7 @@ def setbase(add):
 	'''
 	global elfbase
 	elfbase = add
-	print(">>>>  your binary base is ",hex(elfbase))
+	print("\n>>>>  your binary base is ",hex(elfbase))
 
 def setlibcbase(add):
 	'''
@@ -415,7 +440,7 @@ def setlibcbase(add):
 	'''
 	global libcbase
 	libcbase = add
-	print(">>>>  your libc base is ",hex(libcbase))
+	print("\n>>>>  your libc base is ",hex(libcbase))
 	
 def elsym(add):
 	'''
@@ -433,7 +458,7 @@ def elsym(add):
 	elfbase + add
 	'''
 	elfbase = globals()['elfbase']
-	print(">>>>  The elf add with base is ",hex(elfbase+add))
+	print("\n>>>>  The elf add with base is ",hex(elfbase+add))
 	return elfbase+add
 
 def lisym(add):
@@ -452,10 +477,10 @@ def lisym(add):
 	libcbase + add
 	'''
 	libcbase = globals()['libcbase']
-	print(">>>>  The libc add with base is ",hex(libcbase+add))
+	print("\n>>>>  The libc add with base is ",hex(libcbase+add))
 	return libcbase+add
 
-def searchlibc(fun,real_addr,agu=0,offset=0) :
+def searchlibc(fun,real_addr,mode=1,offset=0) :
 	'''
 	------
 	Descriptions
@@ -466,22 +491,23 @@ def searchlibc(fun,real_addr,agu=0,offset=0) :
 	Parameters
 	fun : function name
 	real_addr =: leaked real addr of func
-	agu : flag of using libc (1) or libcsearcher (0) 
+	mode : flag of using libc (1) or libcsearcher (0) 
 	offset : the offset between leaked addr and base addr of func
 
 	------
 	Returns
 	binsh, system
 	'''
-	libc = globals()['libc']
-	if agu :
+
+	if mode :
+		libc = globals()['libc']
 		base_addr = real_addr - libc.symbols[fun] - offset
 		setlibcbase(base_addr)
 		system = libc.symbols['system'] + base_addr
 		binsh = libc.search(b'/bin/sh').__next__() + base_addr
-		print("\n >>>>  The base addr is ",hex(base_addr),'\n')
-		print("\n >>>>  The bin_addr ",hex(binsh),'\n')		
-		print("\n >>>>  The system addr is ",hex(system),'\n')
+		print("\n>>>>  The base addr is ",hex(base_addr),'\n')
+		print("\n>>>>  The bin_addr ",hex(binsh),'\n')		
+		print("\n>>>>  The system addr is ",hex(system),'\n')
 		return binsh, system
 	else :
 		libc=LibcSearcher(fun,real_addr-offset)
@@ -489,12 +515,12 @@ def searchlibc(fun,real_addr,agu=0,offset=0) :
 		setlibcbase(offset)
 		binsh=offset+libc.dump('str_bin_sh')
 		system=offset+libc.dump('system')
-		print("\n >>>>  The offset is ",hex(offset),'\n')
-		print("\n >>>>  The bin_addr ",hex(binsh),'\n')		
-		print("\n >>>>  The system addr is ",hex(system),'\n')
+		print("\n>>>>  The offset is ",hex(offset),'\n')
+		print("\n>>>>  The bin_addr ",hex(binsh),'\n')		
+		print("\n>>>>  The system addr is ",hex(system),'\n')
 		return binsh, system
 
-def csu(rbx, rbp, r12, r13, r14, r15,csu_end_addr,csu_front_addr, last):
+def csu(csu_end_addr=0,csu_front_addr=0, r12=0,r13=0, r14=0, r15=0,rbx=0, rbp=1,  last=None):
 	'''
 	------
 	Descriptions
@@ -503,10 +529,10 @@ def csu(rbx, rbp, r12, r13, r14, r15,csu_end_addr,csu_front_addr, last):
 	# pop rbx,rbp,r12,r13,r14,r15
     # rbx should be 0,
     # rbp should be 1,enable not to jump
-    # r12 should be the function we want to call
-    # rdi=edi=r15d
-    # rsi=r14
-    # rdx=r13
+    # r15 should be the function we want to call
+    # rdi=edi=r12d
+    # rsi=r13
+    # rdx=r14
 
 	------
 	Parameters
@@ -515,23 +541,18 @@ def csu(rbx, rbp, r12, r13, r14, r15,csu_end_addr,csu_front_addr, last):
 
 	------
 	Returns
-	binsh, system
+	payload
 	'''
     # pop rbx,rbp,r12,r13,r14,r15
     # rbx should be 0,
     # rbp should be 1,enable not to jump
-    # r12 should be the function we want to call
-    # rdi=edi=r15d
-    # rsi=r14
-    # rdx=r13
-	payload = 'a' * 0x80 + fakeebp
-	payload += p64(csu_end_addr) + p64(rbx) + p64(rbp) + p64(r12) + p64(
-        r13) + p64(r14) + p64(r15)
+    # r15 should be the function we want to call
+    # rdi=edi=r12d
+    # rsi=r13
+    # rdx=r14
+	payload = p64(csu_end_addr) + p64(rbx) + p64(rbp) + p64(r12) + p64(r13) + p64(r14) + p64(r15)
 	payload += p64(csu_front_addr)
-	payload += 'a' * 0x38
-	payload += p64(last)
-	sh.send(payload)
-	sleep(1)
+	return payload
 
 """
 mov     rdx, r14
@@ -559,18 +580,19 @@ def fmt(offset,begin,end,size,written):
 	------
 	Descriptions
 	fmt attack
-    fmt攻击
+	fmt攻击
 
 	------
 	Parameters
 	offset : fmt 偏移
-	begin : 背写的地址
-	end : 写入的地址
+	begin : 将要被写入的地址
+	end : 将要写入的地址
 	size : 写入的格式化字符串形式
 	wriiten : printf函数已写入的字节数
 
 	------
 	Returns
+	payload
 
 	elfbase + add
     # offset（int） - 您控制的第一个格式化程序的偏移量
@@ -581,7 +603,7 @@ def fmt(offset,begin,end,size,written):
 	payload = fmtstr_payload(offset,{begin: end},write_size = size,numbwritten=written)
 	return payload
 
-def ROPgadget(bin, order, gr = '' ,*option):
+def ROPgadget(bin, order=None, gr = '' ,option=''):
 	'''
 	------
 	Descriptions
@@ -602,25 +624,31 @@ def ROPgadget(bin, order, gr = '' ,*option):
 	if option == 'string':
 		cmd = f'ROPgadget --binary {bin} --string "{order}"'
 	else:
-		if gr == 0:
+		if gr =='':
 			cmd = f'ROPgadget --binary {bin} --only "pop|ret"' 
 		else:
-			cmd = f'ROPgadget --binary {bin} --only "pop|ret" | grep gr'
-	os.system(cmd)
+			cmd = f'ROPgadget --binary {bin} --only "pop|ret" | grep {gr}'
+	# os.system(cmd)
 	result = os.popen(cmd).read()
+	if option == "show":
+		print(result)
+		return None
 	addresses = result.split('\n')
-	custom_address = None
+	gadget = None
 	for address in addresses:
+		if order == None:
+			return None
 		if order in address:
-			if order.strip() == address.split(':')[1].strip():
-				custom_address = address.split(':')[0].strip()
+			if order.strip() in address.split(':')[1].strip():
+				gadget = address.split(':')[0].strip()
 				break
-	if custom_address:
-		print(f">>> '{order}' address:", custom_address)
+	if gadget:
+		print(f">>> '{order}' address:", gadget)
 	else:
 		print(f">>> '{order}' address not found.")
+		return None	
 	
-	return int(custom_address,16)
+	return int(gadget,16)
 
 
 #-----------------------------------------------------------------------------------------
@@ -637,9 +665,7 @@ sl = lambda data :p.sendline(data)
 # sendlineafter(delim,data)
 sla = lambda delim,data :p.sendlineafter(delim,data)
 # recv()
-rc = lambda :p.recv()
-# recv(data)
-rec = lambda data :p.recv(data)
+rc = lambda data=None: p.recv() if data is None else p.recv(data)
 # recvuntil(delims,drop)
 ru = lambda delims,drop=True :p.recvuntil(delims,drop)
 # int(data,16)
@@ -654,4 +680,5 @@ lg = lambda name,addr :log.success(name+'='+hex(addr))
 ia = lambda :p.interactive()
 # close()
 cl = lambda :p.close()
-
+# getflag
+gf = lambda :p.sendline('cat flag')

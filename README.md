@@ -1,5 +1,4 @@
 # Excalibur2
-A tool for ctf pwn learners
 
 ## Description
 
@@ -17,7 +16,7 @@ Install Excalibur2 by
 
 check for updates
 
-> python3 -m Excalibur2.\_\_update\_\_
+>  python3 -m Excalibur2.\_\_update\_\_
 
 update package
 
@@ -42,6 +41,15 @@ python built-in help
 more details Please visit https://lmarch2.top/posts/8c945bd4/ 
 
 ## Release
+
+### 2.4，Feb 8, 2024
+
+Renamed `contextset` to `setcontext`.
+Added a new function `prhl`.
+Set the default parameter for `proc` to `./pwn`.
+Added automatic address calculation for base addresses.
+Fixed bugs in the `csu` and `ropgadget` functions.
+Modified some aliases.
 
 ### 2.2,  Feb 8, 2024
 

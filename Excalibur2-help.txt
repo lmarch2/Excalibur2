@@ -15,13 +15,16 @@ DESCRIPTION
     --------------------------------------
     
     Example:
-        >>> from Excalibur2 import*
+       >>> from Excalibur2 import*
 
 PACKAGE CONTENTS
     Excalibur2
+    __update__
 
 FUNCTIONS
-    ROPgadget(bin, order, gr='', *option)
+    POINTER(...)
+    
+    ROPgadget(bin, order=None, gr='', option='')
             ------
             Descriptions
             find gadgets you want using ROPgadget
@@ -36,27 +39,26 @@ FUNCTIONS
         
             ------
             Returns
-            elfbase + add
+            gadget
+    
+    addressof(...)
+        addressof(C instance) -> integer
+        Return the address of the C instance internal buffer
+    
+    alignment(...)
+        alignment(C type) -> integer
+        alignment(C instance) -> integer
+        Return the alignment requirements of a C instance
+    
+    byref(...)
+        byref(C instance[, offset=0]) -> byref-object
+        Return a pointer lookalike to a C instance, only usable
+        as function argument
     
     cl lambda (...)
         # close()
     
-    contextset(ar=64, de=1)
-        ------
-        Descriptions
-        set your structure and debug mode
-        设置文件架构和调试模式
-        
-        ------
-        Parameters
-        ar : choose arch for amd64 (64) or i386 (32)
-        de : using debug mode (1) or not (0)
-        
-        ------
-        Returns
-        None
-    
-    csu(rbx, rbp, r12, r13, r14, r15, csu_end_addr, csu_front_addr, last)
+    csu(csu_end_addr=0, csu_front_addr=0, r12=0, r13=0, r14=0, r15=0, rbx=0, rbp=1, last=None)
             ------
             Descriptions
         ret2csu utilizes rop chain
@@ -64,10 +66,10 @@ FUNCTIONS
             # pop rbx,rbp,r12,r13,r14,r15
         # rbx should be 0,
         # rbp should be 1,enable not to jump
-        # r12 should be the function we want to call
-        # rdi=edi=r15d
-        # rsi=r14
-        # rdx=r13
+        # r15 should be the function we want to call
+        # rdi=edi=r12d
+        # rsi=r13
+        # rdx=r14
         
             ------
             Parameters
@@ -76,7 +78,7 @@ FUNCTIONS
         
             ------
             Returns
-            binsh, system
+            payload
     
     debug(c=0)
         ------
@@ -93,6 +95,8 @@ FUNCTIONS
         ------
         Returns
         None
+    
+    default(mode)
     
     el(arg='pwn')
             ------
@@ -131,13 +135,14 @@ FUNCTIONS
             ------
             Parameters
             offset : fmt 偏移
-            begin : 背写的地址
-            end : 写入的地址
+            begin : 将要被写入的地址
+            end : 将要写入的地址
             size : 写入的格式化字符串形式
             wriiten : printf函数已写入的字节数
         
             ------
             Returns
+            payload
         
             elfbase + add
         # offset（int） - 您控制的第一个格式化程序的偏移量
@@ -172,6 +177,11 @@ FUNCTIONS
             ------
             Returns
             recieved addr
+    
+    get_errno(...)
+    
+    gf lambda (...)
+        # getflag
     
     got(fun, *pie_base)
             ------
@@ -241,6 +251,12 @@ FUNCTIONS
             Returns
             libcbase + add
     
+    pack(...)
+        pack(format, v1, v2, ...) -> bytes
+        
+        Return a bytes object containing the values v1, v2, ... packed according
+        to the format string.  See help(struct) for more on format strings.
+    
     plt(fun, *pie_base)
             ------
             Descriptions
@@ -255,6 +271,8 @@ FUNCTIONS
             ------
             Returns
             plt addr of func
+    
+    pointer(...)
     
     pr(addr)
         print abbreviation
@@ -278,11 +296,15 @@ FUNCTIONS
         print Hexadecimal data abbreviation
         打印十六进制
     
+    prhl(addr)
+        print length of data abbreviation
+        打印数据长度
+    
     prl(addr)
         print length of data abbreviation
         打印数据长度
     
-    proc(bin)
+    proc(bin='./pwn')
             ------
             Descriptions
         load binary when no command line parameter R provided
@@ -296,11 +318,8 @@ FUNCTIONS
             Returns
             p
     
-    rc lambda (...)
+    rc lambda data=None
         # recv()
-    
-    rec lambda data
-        # recv(data)
     
     remo(ip, port='')
         ------
@@ -319,6 +338,9 @@ FUNCTIONS
         Returns
         p
     
+    resize(...)
+        Resize the memory buffer of a ctypes instance
+    
     ru lambda delims, drop=True
         # recvuntil(delims,drop)
     
@@ -328,7 +350,7 @@ FUNCTIONS
     sda lambda delim, data
         # sendafter(delim,data)
     
-    searchlibc(fun, real_addr, agu=0, offset=0)
+    searchlibc(fun, real_addr, mode=1, offset=0)
             ------
             Descriptions
         Determine the libc version from the leaked function real address and return /bin/sh string address and system function address
@@ -338,12 +360,14 @@ FUNCTIONS
             Parameters
             fun : function name
             real_addr =: leaked real addr of func
-            agu : flag of using libc (1) or libcsearcher (0) 
+            mode : flag of using libc (1) or libcsearcher (0) 
             offset : the offset between leaked addr and base addr of func
         
             ------
             Returns
             binsh, system
+    
+    set_errno(...)
     
     setbase(add)
             ------
@@ -358,6 +382,21 @@ FUNCTIONS
             ------
             Returns
             None
+    
+    setcontext(ar=64, de=1)
+        ------
+        Descriptions
+        set your structure and debug mode
+        设置文件架构和调试模式
+        
+        ------
+        Parameters
+        ar : choose arch for amd64 (64) or i386 (32)
+        de : using debug mode (1) or not (0)
+        
+        ------
+        Returns
+        None
     
     setlibcbase(add)
             ------
@@ -388,6 +427,11 @@ FUNCTIONS
         Returns
         None
     
+    sizeof(...)
+        sizeof(C type) -> integer
+        sizeof(C instance) -> integer
+        Return the size in bytes of a C instance
+    
     sl lambda data
         # sendline(data)
     
@@ -414,6 +458,48 @@ FUNCTIONS
     
     uu64 lambda data
         # u64(data.ljust(8,b'\x00'))
+
+DATA
+    API_FIND = 'https://libc.rip/api/find'
+    API_LIBC = 'https://libc.rip/api/libc/'
+    DEFAULT_MODE = 0
+    GB = 1000000000
+    GiB = 1073741824
+    HEADERS = {'Content-Type': 'application/json'}
+    KB = 1000
+    KiB = 1024
+    MB = 1000000
+    MiB = 1048576
+    PIPE = -1
+    PTY = <pwnlib.tubes.process.PTY object>
+    RTLD_GLOBAL = 256
+    RTLD_LOCAL = 0
+    STDOUT = -2
+    absolute_import = _Feature((2, 5, 0, 'alpha', 1), (3, 0, 0, 'alpha', 0...
+    arg_doc = {'p': 'number (int): Number to convert', 'u': 'data (bytes):...
+    args = PwnlibArgs(<class 'str'>, {})
+    cdll = <ctypes.LibraryLoader object>
+    context = ContextType()
+    cyclic_pregen = b''
+    de_bruijn_gen = <generator object de_bruijn.<locals>.db>
+    default_style = {'00': functools.partial(<function Module._decorator.<...
+    division = _Feature((2, 2, 0, 'alpha', 2), (3, 0, 0, 'alpha', 0), 1310...
+    elfbase = 0
+    ends = ['b', 'l']
+    libcbase = 0
+    log = <pwnlib.log.Logger object>
+    memmove = <CFunctionType object>
+    memset = <CFunctionType object>
+    op_verbs = {'p': 'pack', 'u': 'unpack'}
+    ops = ['p', 'u']
+    pydll = <ctypes.LibraryLoader object>
+    pythonapi = <PyDLL 'None', handle 7ffbee8302e0>
+    return_types = {'p': 'bytes', 'u': 'int'}
+    rv_doc = {'p': 'The packed number as a byte string', 'u': 'The unpacke...
+    signs = ['s', 'u']
+    sizes = {8: 'b', 16: 'h', 32: 'i', 64: 'q'}
+    variables = {0: {'name': 'flags', 'size': 0}, 1: {'name': '_IO_read_pt...
+    version = '4.12.0'
 
 FILE
     /home/lctfer/.local/lib/python3.10/site-packages/Excalibur2/__init__.py

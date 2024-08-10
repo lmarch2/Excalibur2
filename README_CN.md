@@ -44,6 +44,16 @@ more details Please visit https://lmarch2.top/posts/8c945bd4/
 
 ## Release
 
+### 2.4,  Feb 8, 2024
+
+contextset更名为setcontext
+新增prhl函数
+proc默认参数设置为./pwn
+添加自动计算有基址的地址
+修复了csu和ropgadget函数bug
+修改部分alias
+翻译成英文，txt格式
+
 ### 2.2,  Feb 8, 2024
 
 修复了一些由包名称引起的问题
